@@ -8,7 +8,7 @@ def showInfo():
     print("*          Use and Modify Code from @ruthtillman           *")
     print("*                published data: 9/22/20                   *")
     print("************************************************************")
-    print("Check this repo to see Ruth's work: https://github.com/ruthtillman/subjectreconscripts")
+    print("Check this repo to see Ruth's work: https://github.com/ruthtillman/subjectreconscripts\n\n")
     
 ## print exit message
 # @param    fileOut

@@ -29,14 +29,14 @@ def processSerial(*argv):
         print("\nSearch name terms in precise mode...")
         #preciseResult is a list contain list!
         try:
-            preciseResult = PreciseSearch.preciseNameSearch(argv[0])
+            preciseResult = PreciseSearch.preciseNameSearch(argv[0][1])
         except:
             print("\n Failure happen when try to search one of the keyword.")
             print("Please check your network. If this keep hapeening please send author a message.")
             print("Hit enter to exit.", end = "")
             input()
             sys.exit()
-        failedResult = checkFailure(preciseResult, argv[0], printOption)
+        failedResult = checkFailure(preciseResult, argv[0][1], printOption)
         #when some of them fail(most of the user case)
         if len(failedResult) > 0:
             resultList = preciseResult
@@ -55,7 +55,7 @@ def processSerial(*argv):
                 isFailed = False
             resultList = newPreciseResult
         #when all keyword fails(rare)
-        elif len(failedResult) == len(argv[0]):
+        elif len(failedResult) == len(argv[0][1]):
             resultList = []
             print("\nFailed name precise result find! Generate failed result report.")
             openedFail = open("failed names.csv", 'w', encoding = 'utf-8',newline='')
@@ -69,14 +69,14 @@ def processSerial(*argv):
     elif argv[1] == False:
         print("\nSearch subject terms in precise mode...")
         try:
-            preciseResult = PreciseSearch.preciseSubjectSearch(argv[0])
+            preciseResult = PreciseSearch.preciseSubjectSearch(argv[0][1])
         except:
             print("\n Failure happen when try to search one of the keyword.")
             print("Please check your network. If this keep hapeening please send author a message.")
             print("Hit enter to exit.", end = "")
             input()
             sys.exit()
-        failedResult = checkFailure(preciseResult, argv[0])
+        failedResult = checkFailure(preciseResult, argv[0][1])
         #when some of them fail(most of the user case)
         if len(failedResult) > 0:
             resultList = preciseResult
@@ -95,7 +95,7 @@ def processSerial(*argv):
                 isFailed = False
             resultList = newPreciseResult
         #when all keyword fails(rare)
-        elif len(failedResult) == len(argv[0]):
+        elif len(failedResult) == len(argv[0][1]):
             resultList = []
             print("\nNo subject precise result find! Generate failed result report.")
             openedFail = open("failed subjects.csv", 'w', encoding = 'utf-8',newline='')

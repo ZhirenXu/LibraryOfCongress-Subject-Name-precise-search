@@ -11,16 +11,15 @@ def main():
     
     #greeting
     Greeting.showInfo()
+    isSearchName = Run.askSearchMode()
     #read from input, return rows in list, update search mode
     inputCSV = SimpleCSV.getCSVInput()
     outputCSV = SimpleCSV.getCSVOutput()
-    keyword = SimpleCSV.readCSV(inputCSV)
-    keyword.pop(0)
-    isSearchName = Run.askSearchMode()
+    keywords = SimpleCSV.readCSV(inputCSV, isSearchName)
     #run process (precise->fuzzy->output), return a list contain lists of each row
-    result = Run.processSerial(keyword, isSearchName)
-    #situation that all result fail
-    #print(len(result))
+    result = Run.processSerial(keywords, isSearchName)
+    #TODO: ask Ariel give input file and test it
+    SimpleCSV.zipList(result)
     if len(result) != 0:
         #write into output csv
         openedOut = open(outputCSV, 'w', encoding = 'utf-8',newline='')
