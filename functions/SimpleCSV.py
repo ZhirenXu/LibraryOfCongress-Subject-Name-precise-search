@@ -14,27 +14,31 @@ def readCSV(csvIn, mode):
     hasRunOnce = False
     columnNum = 0
     
-    try:
-        inFile = open(csvIn, 'r')
-        csvReader = csv.reader(inFile, delimiter=',')
-        for row in csvReader:
-            if not hasRunOnce:
-                print("which column you want to use as input? The column number START FROM 0.")
-                print("Enter column number: ", end = "")
-                columnNum = int(input())
-                hasRunOnce = True
-            try:
-                dataList.append(row[columnNum])
-                urlList.append(row[0])
-            except:
-                print("Your may enter an invalid column Num (too big or smaller than 0). Run the script again.")
-                sys.exit()
-        dataList.insert(0, urlList)
-        print ("\nOpen input CSV success.")
-    except:
-        print("Fail to open input CSV. Press enter to exit.")
-        key = input()
-        sys.exit()
+    #try:
+    inFile = open(csvIn, 'r', encoding = 'utf-8')
+    csvReader = csv.reader(inFile, delimiter=',')
+    for row in csvReader:
+        if not hasRunOnce:
+            print("\nwhich column you want to use as input? The column number START FROM 0.")
+            print("For example, if data is in colomn 2, type 1.")
+            print("Enter column number: ", end = "")
+            columnNum = int(input())
+            hasRunOnce = True
+        try:
+            urlList.append(row[0])
+            dataList.append(row[columnNum])
+        except:
+            print("Your may enter an invalid column Num (too big or smaller than 0). Run the script again.")
+            sys.exit()
+    #get rid of header
+    urlList.pop(0)
+    dataList.pop(0)
+    dataList.insert(0, urlList)
+    print ("\nOpen input CSV success.")
+    #except:
+        #print("Fail to open input CSV. Press enter to exit.")
+        #key = input()
+        #sys.exit()
         
     return dataList
 
@@ -53,14 +57,17 @@ def writeCSV(dataList, outputFile):
 
 def zipList(dataList):
     urlList = dataList.pop(0)
+    headerList = dataList.pop(0)
     for row in dataList:
+        #add url into data
         row.insert(0, urlList.pop(0))
+    dataList.insert(0, headerList)
 
 ##get input CSV file name
 # @return       fileIn
 #               Input CSV file
 def getCSVInput():
-    print("\nPlease enter csv file name with .csv. NO HEADER IS ALLOWED in the input CSV.\nThe file must in the same folder with your LOC precise search.py program: ", end = "")
+    print("\nPlease enter csv file name with .csv. \nThe file must in the same folder with your LOC precise search.py program: ", end = "")
     fileIn = input()
     #add typo protection
     while ".csv" not in fileIn:

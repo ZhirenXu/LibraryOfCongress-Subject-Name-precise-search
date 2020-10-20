@@ -3,10 +3,10 @@ import sys
 ## print program info
 def showInfo():
     print("************************************************************")
-    print("*  LibraryOfCongress Subject/Name Precise Scrapper v1.0.0  *")
+    print("*  LibraryOfCongress Subject/Name Precise Scrapper v1.1.0  *")
     print("*                  Author: Zhiren Xu                       *")
     print("*          Use and Modify Code from @ruthtillman           *")
-    print("*                published data: 9/22/20                   *")
+    print("*                published data: 10/20/20                   *")
     print("************************************************************")
     print("Check this repo to see Ruth's work: https://github.com/ruthtillman/subjectreconscripts\n\n")
     

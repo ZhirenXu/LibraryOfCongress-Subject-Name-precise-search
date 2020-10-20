@@ -2,7 +2,7 @@
 #Original script: https://github.com/ruthtillman/subjectreconscripts/blob/master/retrieve-lc-uris-from-csv.py
 #Modifiied by: Zhiren Xu
 import requests, os, time, urllib, progressbar
-
+from functions import SimpleCSV
 
 ##Process the initial name to fit url format
 # @param    word
@@ -34,19 +34,30 @@ def preciseNameSearch(*names):
         nameResponse = requests.head(nameURL)
       except:
         print("Fail to request: ", name)
-        errName.append(name)
+        errName.append([name])
       if nameResponse.status_code == 302:
-          nameData.append(name)
-          nameData.append(name)
-          nameData.append(nameResponse.headers['X-Uri'])
-          nameData.append(nameResponse.headers['X-Preflabel'])
+          try:
+              nameData.append(name)
+              nameData.append(name)
+              nameData.append(nameResponse.headers['X-Uri'])
+              nameData.append(nameResponse.headers['X-Preflabel'])
+          except:
+              print("Fail to get part of the header. The record may be broken.")
+              print("\nFail to request: ", name)
+              errName.append([name])
       else:
         if nameResponse.status_code == 301:
             print("\nHTTP 301- Request link has been moved permanently....", end = "")
+            print("Fail to request: ", name)
+            errName.append([name])
         elif nameResponse.status_code == 404:
             print("\nHTTP 404- Request link page doesn't exist....", end = "")
+            print("Fail to request: ", name)
+            errName.append([name])
         else:
             print("\n HTTP", subjectResponse.status_code, "- Not a valid response for scraping....", end = "")
+            print("Fail to request: ", name)
+            errName.append([name])
         #TODO: name not appended, no err file out
         nameData.append(name)
         nameData.append("null")
@@ -54,17 +65,18 @@ def preciseNameSearch(*names):
         nameData.append("null")
       combinedNameData.append(nameData)
       print("Done!")
-      if(len(errName) > 0):
-        errName.insert("Name")
-        errorOut = open("Err.csv", 'w', encoding = 'utf-8', newline = '')
-        simpleCSV.writeCSV(["Name with no result"], errorOut)
-        SimpleCSV.writeCSV(errName, errorOut)
-        print("Name that cause error is put into Err.csv")
       counter = counter + 1
       k = k + 1
       nameData = []
+    if(len(errName) > 0):
+        errorOut = open("Failed Name.csv", 'w', encoding = 'utf-8', newline = '')
+        SimpleCSV.writeCSV(["Failed Names"], errorOut)
+        for name in errName:
+          SimpleCSV.writeCSV(name, errorOut)
+        print("\nName that cause error is put into Failed Name.csv")
+        errorOut.close()
     #add header for output file
-    combinedNameData.insert(0, ["Raw Name", "Correct Name", "LC_URI", "LC_Label"])
+    combinedNameData.insert(0, ["Internal ID link", "Raw Name", "Correct Name", "LC_URI", "LC_Label"])
     return combinedNameData
 
 ##Precisely search the subject (direct append into url to test if it exist)
@@ -73,6 +85,7 @@ def preciseNameSearch(*names):
 # @return   combinedSubjectData
 #           a list contain lists which have subject, url and perferred label    
 def preciseSubjectSearch(*subjects):
+    #print(subjects)
     subjectData = []
     combinedSubjectData = []
     errSubject = []
@@ -90,12 +103,18 @@ def preciseSubjectSearch(*subjects):
         subjectResponse = requests.head(subjectURL)
       except:
         print("Fail to request: ", subject)
-        errSubject.append(subject)
+        #print(subjectResponse.headers)
+        errSubject.append([subject])
       if subjectResponse.status_code == 302:
-          subjectData.append(subject)
-          subjectData.append(subject)
-          subjectData.append(subjectResponse.headers['X-Uri'])
-          subjectData.append(subjectResponse.headers['X-Preflabel'])
+          try:
+              subjectData.append(subject)
+              subjectData.append(subject)
+              subjectData.append(subjectResponse.headers['X-Uri'])
+              subjectData.append(subjectResponse.headers['X-Preflabel'])
+          except:
+              print("Fail to get part of the header. The record may be broken.")
+              print("\nFail to request: ", subject)
+              errSubject.append([subject])
       else:
           if subjectResponse.status_code == 301:
             print("\nHTTP 301- Request link has been moved permanently....", end = "")
@@ -107,6 +126,8 @@ def preciseSubjectSearch(*subjects):
           subjectData.append("null")
           subjectData.append("null")
           subjectData.append("null")
+          print("Fail to request: ", subject)
+          errSubject.append([subject])
       combinedSubjectData.append(subjectData)
       print("Done!")
       subjectData=[]
@@ -114,22 +135,12 @@ def preciseSubjectSearch(*subjects):
       k = k + 1
     #add header for output file
     if(len(errSubject) > 0):
-        errSubject.insert("Name")
-        errorOut = open("Err.csv", 'w', encoding = 'utf-8', newline = '')
-        SimpleCSV.writeCSV(errSubject, errorOut)
+        errSubject.insert(0, ["Failed Subjects"])
+        errorOut = open("Failed Subject.csv", 'w', encoding = 'utf-8', newline = '')
+        for subject in errSubject:
+          SimpleCSV.writeCSV(subject, errorOut)
         errorOut.close()
-        print("Subject that cause error is put into Err.csv")
-    combinedSubjectData.insert(0, ["Raw subject", "Correct Subject", "LC_URI", "LC_Label"])
+        print("\nSubject that cause error is put into Failed Subject.csv")
+    combinedSubjectData.insert(0, ["Internal ID Link", "Raw subject", "Correct Subject", "LC_URI", "LC_Label"])
     return combinedSubjectData
-
-def showResult(**results):
-  pass
-
-##A parallel process version of precise name search
-def preciseNameSearchParallel():
-  pass
-
-#A parallel process version of precise subject search
-def preciseSubjectSearchParallel():
-  pass
 
