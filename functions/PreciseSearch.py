@@ -34,7 +34,7 @@ def preciseNameSearch(*names):
         nameResponse = requests.head(nameURL, timeout=10)
       except:
         print("Fail to request: ", name)
-        errName.append([name])
+        insertErr(errName, name)
       if nameResponse.status_code == 302:
           try:
               nameData.append(name)
@@ -44,20 +44,20 @@ def preciseNameSearch(*names):
           except:
               print("Fail to get part of the header. The record may be broken.")
               print("\nFail to request: ", name)
-              errName.append([name])
+              insertErr(errName, name)
       else:
         if nameResponse.status_code == 301:
             print("\nHTTP 301- Request link has been moved permanently....", end = "")
             print("Fail to request: ", name)
-            errName.append([name])
+            insertErr(errName, name)
         elif nameResponse.status_code == 404:
             print("\nHTTP 404- Request link page doesn't exist....", end = "")
             print("Fail to request: ", name)
-            errName.append([name])
+            insertErr(errName, name)
         else:
             print("\n HTTP", subjectResponse.status_code, "- Not a valid response for scraping....", end = "")
             print("Fail to request: ", name)
-            errName.append([name])
+            insertErr(errName, name)
         #TODO: name not appended, no err file out
         nameData.append(name)
         nameData.append("null")
@@ -96,7 +96,7 @@ def preciseSubjectSearch(*subjects):
     #for loop can be parallelized. Nope, add progress bar for pretty output
     for k in progressbar.progressbar(range(len(subjects[0])), redirect_stdout=True):
       subject = subjects[0][k]
-      print("Processing ", counter, " / ", totalRecordNum, " of records...", end = "")
+      print("\nProcessing ", counter, " / ", totalRecordNum, " of records...", end = "")
       processedSubject = URI_escape(subject)
       subjectURL = 'https://id.loc.gov/authorities/subjects/label/' + processedSubject
       try:
@@ -104,7 +104,6 @@ def preciseSubjectSearch(*subjects):
       except:
         print("Fail to request: ", subject)
         #print(subjectResponse.headers)
-        errSubject.append([subject])
       if subjectResponse.status_code == 302:
           try:
               subjectData.append(subject)
@@ -113,29 +112,27 @@ def preciseSubjectSearch(*subjects):
               subjectData.append(subjectResponse.headers['X-Preflabel'])
           except:
               print("Fail to get part of the header. The record may be broken.")
-              print("\nFail to request: ", subject)
-              errSubject.append([subject])
+              print("Fail to request: ", subject)
+              insertErr(errSubject, subject)
       else:
           if subjectResponse.status_code == 301:
               print("\nHTTP 301- Request link has been moved permanently....", end = "")
-              print("\nFail to request: ", subject)
-              errSubject.append([subject])
+              print("Fail to request: ", subject)
+              insertErr(errSubject, subject)
           elif subjectResponse.status_code == 404:
               print("\nHTTP 404- Request link page doesn't exist....", end = "")
-              print("\nFail to request: ", subject)
-              errSubject.append([subject])
+              print("Fail to request: ", subject)
+              insertErr(errSubject, subject)
           else:
               print("\n HTTP", subjectResponse.status_code, "- Not a valid response for scraping....", end = "")
-              print("\nFail to request: ", subject)
-              errSubject.append([subject])
+              print("Fail to request: ", subject)
+              insertErr(errSubject, subject)
           subjectData.append(subject)
           subjectData.append("null")
           subjectData.append("null")
           subjectData.append("null")
-          print("Fail to request: ", subject)
-          errSubject.append([subject])
       combinedSubjectData.append(subjectData)
-      print("Done!")
+      print("Done!\n")
       subjectData=[]
       counter = counter + 1
       k = k + 1
@@ -150,3 +147,12 @@ def preciseSubjectSearch(*subjects):
     combinedSubjectData.insert(0, ["Internal ID Link", "Raw subject", "Correct Subject", "LC_URI", "LC_Label"])
     return combinedSubjectData
 
+##Check if insterted object is in the list or not then execute it
+# @param    errList
+#           the list to store subject without precise result
+# @param    errSubject
+#           the subject that does not have precise result
+# @update   errList
+def insertErr(errList, errSubject):
+    if not([errSubject] in errList):
+        errList.append([errSubject])
