@@ -31,7 +31,7 @@ def preciseNameSearch(*names):
       print("Processing ", counter, " / ", totalRecordNum, " of records...", end = "")
       nameURL = 'https://id.loc.gov/authorities/names/label/' + processedName
       try:
-        nameResponse = requests.head(nameURL)
+        nameResponse = requests.head(nameURL, timeout=10)
       except:
         print("Fail to request: ", name)
         errName.append([name])
@@ -100,7 +100,7 @@ def preciseSubjectSearch(*subjects):
       processedSubject = URI_escape(subject)
       subjectURL = 'https://id.loc.gov/authorities/subjects/label/' + processedSubject
       try:
-        subjectResponse = requests.head(subjectURL)
+        subjectResponse = requests.head(subjectURL, timeout=10)
       except:
         print("Fail to request: ", subject)
         #print(subjectResponse.headers)
@@ -117,11 +117,17 @@ def preciseSubjectSearch(*subjects):
               errSubject.append([subject])
       else:
           if subjectResponse.status_code == 301:
-            print("\nHTTP 301- Request link has been moved permanently....", end = "")
+              print("\nHTTP 301- Request link has been moved permanently....", end = "")
+              print("\nFail to request: ", subject)
+              errSubject.append([subject])
           elif subjectResponse.status_code == 404:
-            print("\nHTTP 404- Request link page doesn't exist....", end = "")
+              print("\nHTTP 404- Request link page doesn't exist....", end = "")
+              print("\nFail to request: ", subject)
+              errSubject.append([subject])
           else:
-            print("\n HTTP", subjectResponse.status_code, "- Not a valid response for scraping....", end = "")
+              print("\n HTTP", subjectResponse.status_code, "- Not a valid response for scraping....", end = "")
+              print("\nFail to request: ", subject)
+              errSubject.append([subject])
           subjectData.append(subject)
           subjectData.append("null")
           subjectData.append("null")
